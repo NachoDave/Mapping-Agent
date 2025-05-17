@@ -1,0 +1,6 @@
+dash
+dash-leaflet
+osmnx
+networkx
+openai  # or your preferred LLM client
+shapely
