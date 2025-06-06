@@ -110,7 +110,7 @@ def get_turn_node(G, current_road_name: str, next_road_name: str, current_node: 
     # 2) Get the nodes on the next road
     next_road_nodes = get_nodes_on_road(G, next_road_name)
     # 3) Find the nodes common to both to get junction nodes 
-    junc_node = list(curr_road_nodes.intersection(next_road_nodes)) # get nodes in both roads
+    junc_node = list(curr_road_nodes.intersection(next_road_nodes))  # get nodes in both roads
     if len(junc_node) == 1:
         junc_node = list(curr_road_nodes.intersection(next_road_nodes))[0]
     elif len(junc_node) > 1:
@@ -149,15 +149,22 @@ def get_turn_node(G, current_road_name: str, next_road_name: str, current_node: 
                        ]
     # 7) Select Neighbour node dependent on turn direction
     if direction == 'left':
-        final_node = junc_node_neighbours[neigbour_angles.index(min(neigbour_angles))]
+        final_node = junc_node_neighbours[
+            neigbour_angles.index(min(neigbour_angles))
+            ]
     elif direction == "right":
-        final_node = junc_node_neighbours[neigbour_angles.index(max(neigbour_angles))]
+        final_node = junc_node_neighbours[
+            neigbour_angles.index(max(neigbour_angles))
+            ]
     elif direction == "straight":
-        junc_node_neighbours[min(enumerate([abs(180 - (n)) for n in neigbour_angles]), key=lambda x: x[1])[0]]
+        junc_node_neighbours[min(enumerate([
+            abs(180 - (n)) for n in neigbour_angles
+            ]), key=lambda x: x[1])[0]]
     else:
         pass  # may need to add this??
     # 7) Get the route from current node to final node
-    current_node_to_junction_pth = nx.shortest_path(G, source=current_node, target=junc_node)
+    current_node_to_junction_pth = nx.shortest_path(
+        G, source=current_node, target=junc_node)
     junction_to_turn_pth = nx.shortest_path(G, junc_node, final_node)
 
     return current_node_to_junction_pth[:-1] + junction_to_turn_pth
@@ -173,7 +180,8 @@ def get_roundabout_path(G, current_road_name: str, next_road_name: str,
         next_road_name (str): _description_
         current_node (str): _description_
     """
-    current_road_nodes = get_nodes_on_road(G, current_road_name) # get the nodes on the current road
+    current_road_nodes = get_nodes_on_road(G, current_road_name)
+    # get the nodes on the current road
     potential_roundabout_current_road_nodes = set()
 
     for node in current_road_nodes:  # loop through current road nodes
@@ -266,10 +274,15 @@ def get_roundabout_path(G, current_road_name: str, next_road_name: str,
     roundabout_exit_node = dq[exit]
 
     # Get route between roundabout entrance and exit nodes
-    roundabout_entrance_exit_path = ox.shortest_path(G, roundabout_entrance_node, roundabout_exit_node,  weight='length')
+    roundabout_entrance_exit_path = ox.shortest_path(
+        G, roundabout_entrance_node, roundabout_exit_node,
+        weight='length')
 
     # Get the final node on the road
-    final_node = [nd for nd in G.successors(roundabout_exit_node) if nd not in roundabout_nodes]
+    final_node = [
+        nd for nd in G.successors(roundabout_exit_node)
+        if nd not in roundabout_nodes
+        ]
 
     # check if there aren't multiple routes off the exit node
     if len(final_node) != 1:
