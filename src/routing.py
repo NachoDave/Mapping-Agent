@@ -7,8 +7,32 @@ import osmnx as ox
 
 def get_continuing_road_path(G, current_road_name: str, next_road_name: str,
                              current_node: str):
-    """Find a simple continuation path from current road \
-        to next road with a name change but no junction."""
+    """
+    Finds the next node along a continuous path where the road changes name without an actual turn.
+
+    This function is used in cases where the current road flows directly into another road
+    with a different name (e.g., "becomes") and no significant
+    intersection or turn is involved. It identifies the natural continuation of the current
+    trajectory within the road network graph.
+
+    Args:
+        G (networkx.MultiDiGraph): The road network graph, typically from OSMNX.
+        current_road_name (str): The name of the current road being traveled.
+        next_road_name (str): The name of the road that the current road continues into.
+        current_node (str or int): The current node ID within the road network graph.
+
+    Returns:
+        list: A list of the nodes IDs from the current node to the first node on the road after change of name.
+
+    Raises:
+        ValueError: If a continuation path matching the new road name cannot be found.
+        TypeError: If any of the inputs are of invalid type or structure.
+
+    Example:
+        >>> get_continuing_road_path(G, "Main Street", "Broadway", 456789)
+        [456789, 456790, 334561, 1220001]
+    """
+
     visited = set()
     path = [current_node]
 
@@ -95,15 +119,24 @@ def turn_angle(current_node: dict, shared_node: dict, neighbour_node: dict):
     return angle_deg + 180
 
 
-def get_turn_node(G, current_road_name: str, next_road_name: str, current_node: str, direction: str):
-    """_summary_
+def get_turn_path(G, current_road_name: str, next_road_name: str, current_node: str, direction: str):
+    """
+    Determines the OSMNX nodes in the path from the users current node on their current road to the node after the 
+    junction that the user is turning onto
 
     Args:
-        G (_type_): _description_
-        current_road_name (str): _description_
-        next_road_name (str): _description_
-        current_node (str): _description_
-        direction (str): _description
+        G (networkx.MultiDiGraph): The road network graph from OSMNX.
+        current_road_name (str): The name of the road that the user is currently on.
+        next_road_name (str): The name of the road that the user is turning on to.
+        current_node (str): The ID of the current node (as a string).
+        direction (str): Direction of the turn (will be one of, "left", "right", "straight").
+
+    Returns:
+        list: list of the nodes IDs from the current node to the first node on the next road after the junction.
+        
+    Example:
+        >>> get_turn_path(G, "High Street", "Elm Road", 123456, left)
+        [123456, 123789, 23374, 1505050]
     """
     # 1) Get the nodes on the current road
     curr_road_nodes = get_nodes_on_road(G, current_road_name)
@@ -172,14 +205,33 @@ def get_turn_node(G, current_road_name: str, next_road_name: str, current_node: 
 
 def get_roundabout_path(G, current_road_name: str, next_road_name: str,
                         current_node: str, exit: int):
-    """_summary_
+    """
+    Determines the OSMNX nodes in the path from the users current node on their current road to the node after a 
+    a roundabout exit that the user is turning onto
+
+    This function navigates the road network graph starting from the current node,
+    identifying roundabout structures, and determining the correct exit to take
+    based on the given natural language instruction.
 
     Args:
-        G (_type_): _description_
-        current_road_name (str): _description_
-        next_road_name (str): _description_
-        current_node (str): _description_
+        G (networkx.MultiDiGraph): The road network graph, typically from OSMNX.
+        current_road_name (str): The name of the current road before entering the roundabout.
+        next_road_name (str): The name of the road to exit onto after the roundabout.
+        current_node (str or int): The node ID in the graph where the vehicle currently is.
+        exit (int): The exit number to take from the roundabout (e.g., 1 for first exit, 2 for second).
+
+    Returns:
+        list: A list of the node IDs on the path from the current node to the first node on the next road after the roundabout.
+
+    Raises:
+        ValueError: If a suitable roundabout or exit path cannot be found.
+        TypeError: If any of the input types are incorrect or inconsistent with the graph.
+
+    Example:
+        >>> get_roundabout_path(G, "High Street", "Elm Road", 123456, 2)
+        [123456, 123789, 23374, 1505050]
     """
+
     current_road_nodes = get_nodes_on_road(G, current_road_name)
     # get the nodes on the current road
     potential_roundabout_current_road_nodes = set()

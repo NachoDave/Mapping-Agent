@@ -1,2 +1,90 @@
-def build_prompt():
-    pass
+import ollama
+import osmnx as ox
+import pandas as pd
+
+from routing import get_continuing_road_path, get_turn_path, get_roundabout_path
+
+INITIAL_PROMPT = INITIAL_PROMPT = """
+You are a navigation decision assistant.
+
+You are given:
+- The **current road name** (e.g., "High Street"),
+- The **next road name** (e.g., "Station Road"),
+- The **current node**, which represents the current geographic position in the road graph (this is a node ID from a road network graph),
+- A **natural language instruction** (e.g., "At roundabout take the second exit", "Continue straight", "Turn right at the junction").
+- There may be extra information in the instruction that is not required, such as nearby landmarks. You will need to filter these.
+
+Your task is to:
+1. Choose the correct function to call from the available tools:
+   - `get_turn_node` for regular left, right, at standard junctions or at mini-roundabouts.
+   - `get_potential_roundabout_node` for instructions involving roundabouts (e.g., "Take the third exit").
+   - `get_continuation_node` when the road simply changes name but no actual turn occurs (e.g., "Continue onto Station Road").
+
+2. Extract all required arguments from the instruction and road names:
+   - If the instruction mentions a turn, extract the direction ("left", "right", "straight").
+   - If the instruction involves a roundabout, extract the exit number as an integer (e.g., "Take the 2nd exit" → 2).
+
+3. Call exactly **one** of the tools with appropriate arguments.
+   - Use the `current_node` as the starting point in all function calls.
+   - If none of the tools are suitable, reply with a message explaining why and that the instruction requires human attention.
+
+Be precise and cautious. Only call a function if you're confident it matches the instruction.
+If the instruction is ambiguous, unsupported, or incomplete, do **not** guess — respond clearly that it can't be handled automatically.
+"""
+
+
+def run_llm(input: dict, prompt: str, tools: list, model_name: str = "qwen3:8b"):
+    """_summary_
+
+    Args:
+        input (dict): _description_
+        prompt (str): _description_
+        model_name (_type_, optional): _description_. Defaults to "qwen3:8b".
+    """
+
+    messages = [
+        {
+            "role": "system",
+            "content": prompt
+        },
+        {
+            "role": "user",
+            "content": (
+                f"You are at node {input['current_node']} on {input['current_road']}.\n"
+                f"The next road is {input['next_road']}.\n"
+                f"The instruction is: '{input['instruction']}'."
+            )
+        }
+    ]
+
+    try:
+        response = ollama.chat(
+            model=model_name,
+            messages=messages,
+            tools=tools, # This is where you pass the tool definitions
+        )
+        return response
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+
+
+if __name__ == '__main__':
+    print("Hello")
+    
+    # G_tolworth = ox.graph_from_point((51.3829463, -0.2933327), dist=5000, network_type='drive')
+    # print(get_nodes_on_road(G_tolworth, 'Ewell Road'))
+    
+    node1_2_input = {
+    "current_node": "23780711",
+    "current_road": "Douglas Road",
+    "next_road": "Ewell Road",
+    "instruction": "Take the second left"
+}
+
+    llm_response = run_llm(
+        input = node1_2_input, prompt = INITIAL_PROMPT,
+                           tools = [get_continuing_road_path, get_turn_path, get_roundabout_path]
+                           )
+
+    print(llm_response)
