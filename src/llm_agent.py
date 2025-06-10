@@ -1,6 +1,4 @@
 import ollama
-import osmnx as ox
-import pandas as pd
 
 from routing import get_continuing_road_path, get_turn_path, get_roundabout_path
 
