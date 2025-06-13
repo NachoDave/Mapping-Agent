@@ -1,14 +1,16 @@
 # src/callbacks/upload_callbacks.py
 
-from dash import Input, Output, State, callback
+import base64
+import io
+
 import dash
 import pandas as pd
-import io
-import base64
+from dash import Input, Output, State, callback
+
 
 @callback(
     Output("directions-df", "data"),         # hidden store component (holds full DataFrame)
-    Output("directions-table", "data"),      # updates the DataTable
+    #Output("directions-table", "data"),      # updates the DataTable
     Input("upload-data", "contents"),        # file upload component
     State("upload-data", "filename"),
     prevent_initial_call=True,
@@ -34,4 +36,12 @@ def handle_csv_upload(contents, filename):
     df.insert(0, 'Step', range(1, len(df) + 1))
 
     # Return both table data and full data as JSON
-    return df.to_dict('records'), df.to_dict('records')
+    return df.to_dict('records')  #, df.to_dict('records')
+
+
+@callback(
+    Output("directions-table", "data"),
+    Input("directions-df", "data")
+)
+def update_table_from_store(store_data):
+    return store_data

@@ -1,13 +1,23 @@
-import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import sys
+
 import dash
-from dash import html, dcc, dash_table
 import dash_bootstrap_components as dbc
 import dash_leaflet as dl
+import osmnx as ox
+from dash import dash_table, dcc, html
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from src.llm_agent import run_llm  # noqa: F401
+
 #import dash_html_components as html
-from src.routing import get_nodes_on_road
-from src.llm_agent import run_llm
+from src.routing import get_nodes_on_road  # noqa: F401
+
+# Load the graph object (should make this user selectable for final app)
+# G_tolworth = ox.graph_from_point((51.3829463, -0.2933327), dist=5000, network_type='drive')
+# ox.save_graphml(G_tolworth, filepath="data/tolworth.graphml")
+G_tolworth = ox.load_graphml("data/tolworth.graphml")
 
 # Sample directions data
 directions_data = [
@@ -89,6 +99,16 @@ app.layout = dbc.Container(fluid=True, children=[
                     'whiteSpace': 'pre-wrap'
                 }
             ),
+            
+            html.Div([
+            html.Label("Initial Node Number:", style={"fontWeight": "bold"}),
+            dcc.Input(
+                id="initial-node-input",
+                type="number",
+                placeholder="Enter start node (e.g. 12345)",
+                style={"width": "100%", "marginBottom": "10px"}
+            )
+            ]),
 
             dbc.ButtonGroup([
                 dbc.Button("Process Step", id="process-step-btn", color="secondary"),
