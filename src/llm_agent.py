@@ -1,4 +1,5 @@
 import ollama
+
 from routing import (
     get_continuing_road_path,
     get_roundabout_path,
