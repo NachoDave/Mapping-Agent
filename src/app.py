@@ -17,11 +17,11 @@ from src.routing import get_nodes_on_road  # noqa: F401
 # Load the graph object (should make this user selectable for final app)
 # G_tolworth = ox.graph_from_point((51.3829463, -0.2933327), dist=5000, network_type='drive')
 # ox.save_graphml(G_tolworth, filepath="data/tolworth.graphml")
-G_tolworth = ox.load_graphml("data/tolworth.graphml")
+G = ox.load_graphml("data/tolworth.graphml")
 
 # Sample directions data
 directions_data = [
-    {"Step": "", "Current Road": "", "Next Road": "", "Instruction": "", "Tool Call": ""},
+    {"Step": "", "Current Road": "", "Next Road": "", "Instruction": ""},
 
 ]
 
@@ -39,6 +39,7 @@ app.layout = dbc.Container(fluid=True, children=[
                 zoom=15,
                 children=[
                     dl.TileLayer(),
+                    dl.LayerGroup(id="route-layer")
                     # Add any markers or layers here
                 ],
                 style={'width': '100%', 'height': '90vh'}
@@ -72,10 +73,11 @@ app.layout = dbc.Container(fluid=True, children=[
 
             # Hidden data store
             dcc.Store(id='directions-df'),
+            dcc.Store(id='route_nodes'),
             
             dash_table.DataTable(
                 id="directions-table",
-                columns=[{"name": i, "id": i} for i in ["Step", "Current Road", "Next Road", "Instruction", "Tool Call"]],
+                columns=[{"name": i, "id": i} for i in ["Step", "Current Road", "Next Road", "Instruction"]],
                 data=directions_data,
                 style_cell={'textAlign': 'left', 'padding': '5px'},
                 style_header={'fontWeight': 'bold'},
@@ -123,4 +125,4 @@ app.layout = dbc.Container(fluid=True, children=[
 from callbacks import upload_callbacks, llm_callbacks  # noqa
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8051)
+    app.run(debug=True, port=8052)

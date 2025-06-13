@@ -1,6 +1,7 @@
 import math
 from collections import deque
 
+import dash_leaflet as dl
 import networkx as nx
 import osmnx as ox
 
@@ -367,6 +368,37 @@ def get_roundabout_path(
         )
 
     return final_path
+
+
+def get_markers_and_polylines(G, nodes, step, edge_color = 'red'):
+    ## Get markers
+    node_dict = {node: G.nodes[node] for node in nodes}
+    markers = [
+    dl.Marker(position=(node_dict[dx]['y'], node_dict[dx]['x']), 
+              children=dl.Tooltip(f'Step: {step}, ID: {dx}, x: {node_dict[dx]['x']}, y: {node_dict[dx]['y']}'))
+    for dx in node_dict.keys()
+    ]
+    
+    ## Get polylines
+    edges = [G.get_edge_data(nodes[u], nodes[u + 1])[0] for u in range(len(nodes) - 1)]
+
+    edge_lines = []
+
+    for idx, data in  zip(range(len(edges)), edges):
+        # Some edges have multiple geometries (from OSM), handle those first
+        if 'geometry' in data:
+            # If geometry is a LineString, extract lat/lon pairs
+            coords = [(point[1], point[0]) for point in data['geometry'].coords]
+        else:
+            #Otherwise use straight line between nodes
+            coords = [
+                markers[idx].position, 
+                markers[idx + 1].position
+            ]
+        
+        edge_lines.append(dl.Polyline(positions=coords, color=edge_color, weight=3))
+
+    return markers, edge_lines
 
 
 tool_dict = {
