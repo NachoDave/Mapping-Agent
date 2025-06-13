@@ -74,6 +74,7 @@ app.layout = dbc.Container(fluid=True, children=[
             # Hidden data store
             dcc.Store(id='directions-df'),
             dcc.Store(id='route_nodes'),
+            dcc.Store(id='route_markers'),
             
             dash_table.DataTable(
                 id="directions-table",

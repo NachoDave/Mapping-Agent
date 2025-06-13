@@ -20,6 +20,7 @@ from routing import (
     ),  # Just to trigger the callback; can be no-update
     Output("route-layer", "children"),
     Output("route_nodes", "data"),
+    Output("route_markers", "data"),
     Input("process-step-btn", "n_clicks"),
     State("directions-df", "data"),
     State("initial-node-input", "value"),
@@ -68,7 +69,7 @@ def process_step(n_clicks, table_data, start_node):
     return (
         f"Step {n_clicks} processed. Initial node is {start_node}",
         markers + polylines,
-        route_nodes,
+        route_nodes, markers + polylines
     )
 
 
