@@ -20,8 +20,10 @@ You are given:
 
 Your task is to:
 1. Choose the correct function to call from the available tools:
-   - `get_roundabout_path` for regular left, right, at standard junctions or at mini-roundabouts. Remember, these instructions are written
-        for drivers, so may include extra information such as 2nd left, which we do not need for our functions. 
+   - `get_turn_path` for regular left, right, at standard junctions or at mini-roundabouts. Remember, these instructions are written
+        for drivers, so may include extra information such as landmarks. They will often containt the turn number, i.e., third left, 
+        which tells the user which left turn to take relative to their current location. We don't need this information for the 
+        functions, only the turn direction and the current and next road. 
    - `get_roundabout_path` for instructions involving roundabouts (e.g., "Roundabout third exit"). 
         Roundabout instructions will explicitly mention roundabout. Roundabouts may be abbreviated (e.g., RB, R-bout). 
         Similarly, "TL" or "T/L" means traffic lights, and "EOR" means "end of road".
