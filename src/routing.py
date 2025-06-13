@@ -6,7 +6,7 @@ import osmnx as ox
 
 
 def get_continuing_road_path(
-    G, current_road_name: str, next_road_name: str, current_node: str
+    G, current_road_name: str, next_road_name: str, current_node: int
 ):
     """
     Finds the next node along a continuous path where the road changes name without an actual turn.
@@ -33,6 +33,8 @@ def get_continuing_road_path(
         >>> get_continuing_road_path(G, "Main Street", "Broadway", 456789)
         [456789, 456790, 334561, 1220001]
     """
+
+    current_node = int(current_node)
 
     visited = set()
     path = [current_node]
@@ -122,7 +124,7 @@ def turn_angle(current_node: dict, shared_node: dict, neighbour_node: dict):
 
 
 def get_turn_path(
-    G, current_road_name: str, next_road_name: str, current_node: str, direction: str
+    G, current_road_name: str, next_road_name: str, current_node: int, direction: str
 ):
     """
     Determines the OSMNX nodes in the path from the users current node on their current road to the node after the
@@ -142,6 +144,9 @@ def get_turn_path(
         >>> get_turn_path(G, "High Street", "Elm Road", 123456, left)
         [123456, 123789, 23374, 1505050]
     """
+    
+    current_node = int(current_node)
+    
     # 1) Get the nodes on the current road
     curr_road_nodes = get_nodes_on_road(G, current_road_name)
     # 2) Get the nodes on the next road
@@ -209,7 +214,7 @@ def get_turn_path(
 
 
 def get_roundabout_path(
-    G, current_road_name: str, next_road_name: str, current_node: str, exit: int
+    G, current_road_name: str, next_road_name: str, current_node: int, exit: int
 ):
     """
     Determines the OSMNX nodes in the path from the users current node on their current road to the node after a
@@ -237,6 +242,8 @@ def get_roundabout_path(
         >>> get_roundabout_path(G, "High Street", "Elm Road", 123456, 2)
         [123456, 123789, 23374, 1505050]
     """
+    
+    current_node = int(current_node)
 
     current_road_nodes = get_nodes_on_road(G, current_road_name)
     # get the nodes on the current road
@@ -369,7 +376,7 @@ tool_dict = {
 }
 
 
-def run_tool(response, tool_dict: dict):
+def run_tool(response, tool_dict: dict, G):
     """_summary_
 
     Args:
@@ -379,9 +386,11 @@ def run_tool(response, tool_dict: dict):
     tool = response.message.tool_calls[0]
     function_to_call = tool_dict.get(tool.function.name)
     if function_to_call:
-        print("Function output:", function_to_call(**tool.function.arguments))
+        print(f"Function output: {tool.function.name}, args = tool.function.arguments")
+        args = tool.function.arguments
+        args.pop('G')
         
-        return function_to_call(**tool.function.arguments)
+        return function_to_call(G = G, **args)
     else:
         print("Function not found:", tool.function.name)
 
@@ -396,7 +405,7 @@ if __name__ == "__main__":
 
     print("Hello")
 
-    # G_tolworth = ox.graph_from_point((51.3829463, -0.2933327), dist=5000, network_type='drive')
+    G = ox.graph_from_point((51.3829463, -0.2933327), dist=5000, network_type='drive')
     # print(get_nodes_on_road(G_tolworth, 'Ewell Road'))
 
     node1_2_input = {
@@ -412,4 +421,4 @@ if __name__ == "__main__":
         tools=[get_continuing_road_path, get_turn_path, get_roundabout_path],
     )
 
-    func_out = run_tool(llm_response, tool_dict)
+    func_out = run_tool(llm_response, tool_dict, G)
