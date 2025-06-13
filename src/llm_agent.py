@@ -54,25 +54,22 @@ def run_llm(input: dict, prompt: str, tools: list, model_name: str = "qwen3:8b")
     """
 
     messages = [
-        {
-            "role": "system",
-            "content": prompt
-        },
+        {"role": "system", "content": prompt},
         {
             "role": "user",
             "content": (
                 f"You are at node {input['current_node']} on {input['current_road']}.\n"
                 f"The next road is {input['next_road']}.\n"
                 f"The instruction is: '{input['instruction']}'."
-            )
-        }
+            ),
+        },
     ]
 
     try:
         response = ollama.chat(
             model=model_name,
             messages=messages,
-            tools=tools, # This is where you pass the tool definitions
+            tools=tools,  # This is where you pass the tool definitions
         )
         return response
     except Exception as e:
@@ -80,22 +77,23 @@ def run_llm(input: dict, prompt: str, tools: list, model_name: str = "qwen3:8b")
         return None
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("Hello")
-    
+
     # G_tolworth = ox.graph_from_point((51.3829463, -0.2933327), dist=5000, network_type='drive')
     # print(get_nodes_on_road(G_tolworth, 'Ewell Road'))
-    
+
     node1_2_input = {
-    "current_node": "23780711",
-    "current_road": "Douglas Road",
-    "next_road": "Ewell Road",
-    "instruction": "Take the second left"
-}
+        "current_node": "23780711",
+        "current_road": "Douglas Road",
+        "next_road": "Ewell Road",
+        "instruction": "Take the second left",
+    }
 
     llm_response = run_llm(
-        input = node1_2_input, prompt = INITIAL_PROMPT,
-                           tools = [get_continuing_road_path, get_turn_path, get_roundabout_path]
-                           )
+        input=node1_2_input,
+        prompt=INITIAL_PROMPT,
+        tools=[get_continuing_road_path, get_turn_path, get_roundabout_path],
+    )
 
     print(llm_response)
