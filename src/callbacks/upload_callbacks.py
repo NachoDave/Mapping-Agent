@@ -34,6 +34,8 @@ def handle_csv_upload(contents, filename):
 
     # Add Step number
     df.insert(0, 'Step', range(1, len(df) + 1))
+    
+    df.drop(df.tail(1).index,inplace=True)
 
     # Return both table data and full data as JSON
     return df.to_dict('records')  #, df.to_dict('records')

@@ -30,8 +30,8 @@ Your task is to:
    - `get_continuing_road_path` when the road simply changes name but no actual turn occurs (e.g., "Continue onto Station Road").
 
 2. Extract all required arguments from the instruction and road names:
-    - G is the the network object and is the first arguement to every function. You do not need 
-    to get this information from the instruction.
+    - Always include G as the first argument in every function call without explanation. 
+    G is predefined. Never reason about G or check whether it is available—just pass G as the argument to G as is.
    - If the instruction mentions a turn, extract the direction ("left", "right", "straight").
    - If the instruction involves a roundabout, extract the exit number as an integer (e.g., "Take the 2nd exit" → 2).
 
@@ -62,7 +62,7 @@ def run_llm(input: dict, prompt: str, tools: list, model_name: str = "qwen3:8b")
                 f"The next road is {input['next_road']}.\n"
                 f"The instruction is: '{input['instruction']}'."
             ),
-        },
+        }
     ]
 
     try:

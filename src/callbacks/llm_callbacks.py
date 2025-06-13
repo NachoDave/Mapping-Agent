@@ -9,9 +9,14 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from graph_data import G
 from routing import (
+    get_continuing_road_path,
     get_markers_and_polylines,
+    get_roundabout_path,
+    get_turn_path,
+    run_tool,
     tool_dict,
 )
+from src.llm_agent import INITIAL_PROMPT, run_llm
 
 
 @callback(
@@ -37,21 +42,32 @@ def process_step(n_clicks, table_data, start_node):
     markers = []
     polylines = []
     route_nodes = dict()
+    cli_msg = ""
     # Call LLM model
-    for dx in [2]:  # range(len(table_data)):
+    for dx in [0, 1]:#range(len(table_data)):
+        print(f"In step {dx}")
+        row = table_data[dx]
+        # Populate the node input from the data table
+        node_input = {
+        "current_node": start_node,
+        "current_road": row["Current Road"],
+        "next_road": row["Next Road"],
+        "instruction": row["Instruction"],
+    }
         # Call the model
+        llm_response = run_llm(
+            input=node_input,
+            prompt=INITIAL_PROMPT,
+            tools=[get_continuing_road_path, get_turn_path, get_roundabout_path],
+        )
+        
+        if llm_response.message.tool_calls:
+            nodes = run_tool(llm_response, tool_dict, G)
+        else:
+            print("No tool call")
+            return "No tool", [], [], []
 
-        # Call the mapping function
-        args = {
-            "current_node": 23780711,
-            "current_road_name": "Douglas Road",
-            "direction": "left",
-            "next_road_name": "Ewell Road",
-        }
-        tool = "get_turn_path"
-        function_to_call = tool_dict.get(tool)  # .function.name)
-
-        nodes = function_to_call(G=G, **args)  # run_tool(llm_response, tool_dict, G)
+        #nodes = function_to_call(G=G, **args)  # run_tool(llm_response, tool_dict, G)
         
         # Add the nodes to the route nodes dict
         route_nodes[f'Step {dx + 1}'] = nodes
@@ -63,11 +79,18 @@ def process_step(n_clicks, table_data, start_node):
 
         markers = markers + markers1
         polylines = polylines + polylines1
-
-    # Update map object
+        
+        # Populate the terminal string
+        cli_msg = cli_msg + (f"************* Step {dx + 1} ************* \n\n")
+        cli_msg = cli_msg + (f"Input: Current Road: {row["Current Road"]}, Next Road: {row["Next Road"]}, Instruction: {row["Instruction"]}, Start Node: {start_node}\n\n")
+        cli_msg = cli_msg + f"Function called: {llm_response.message.tool_calls[0].function.name}, Args: {llm_response.message.tool_calls[0].function.arguments} \n\n"
+        cli_msg = cli_msg + f"LLM Message: {llm_response.message.content} \n\n"
+        
+        start_node = nodes[-1]
 
     return (
-        f"Step {n_clicks} processed. Initial node is {start_node}",
+        #f"Step {n_clicks} processed. Initial node is {start_node}",
+        cli_msg,
         markers + polylines,
         route_nodes, markers + polylines
     )
