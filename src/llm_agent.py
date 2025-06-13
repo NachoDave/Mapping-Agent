@@ -1,8 +1,11 @@
 import ollama
+from routing import (
+    get_continuing_road_path,
+    get_roundabout_path,
+    get_turn_path,
+)
 
-from routing import get_continuing_road_path, get_turn_path, get_roundabout_path
-
-INITIAL_PROMPT = INITIAL_PROMPT = """
+INITIAL_PROMPT = """
 You are a navigation decision assistant.
 
 You are given:
@@ -10,12 +13,16 @@ You are given:
 - The **next road name** (e.g., "Station Road"),
 - The **current node**, which represents the current geographic position in the road graph (this is a node ID from a road network graph),
 - A **natural language instruction** (e.g., "At roundabout take the second exit", "Continue straight", "Turn right at the junction").
-- There may be extra information in the instruction that is not required, such as nearby landmarks. You will need to filter these.
+- These instructions are written for human drivers, so may be extra information
+    to aid them is not required by our tools, such as nearby landmarks and junction number. 
+    You will need to filter these.
 
 Your task is to:
 1. Choose the correct function to call from the available tools:
-   - `get_turn_node` for regular left, right, at standard junctions or at mini-roundabouts.
-   - `get_potential_roundabout_node` for instructions involving roundabouts (e.g., "Take the third exit").
+   - `get_turn_node` for regular left, right, at standard junctions or at mini-roundabouts. Remember, these instructions are written
+        for drivers, so may include extra information such as 2nd left, which we do not need for our functions. 
+   - `get_potential_roundabout_node` for instructions involving roundabouts (e.g., "Roundabout third exit"). 
+        Roundabout instructions will explicitly mention roundabout, but it may be in an abbreviated form, e.g, RB or R-bout
    - `get_continuation_node` when the road simply changes name but no actual turn occurs (e.g., "Continue onto Station Road").
 
 2. Extract all required arguments from the instruction and road names:
