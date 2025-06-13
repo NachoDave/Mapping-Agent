@@ -20,13 +20,16 @@ You are given:
 
 Your task is to:
 1. Choose the correct function to call from the available tools:
-   - `get_turn_node` for regular left, right, at standard junctions or at mini-roundabouts. Remember, these instructions are written
+   - `get_roundabout_path` for regular left, right, at standard junctions or at mini-roundabouts. Remember, these instructions are written
         for drivers, so may include extra information such as 2nd left, which we do not need for our functions. 
-   - `get_potential_roundabout_node` for instructions involving roundabouts (e.g., "Roundabout third exit"). 
-        Roundabout instructions will explicitly mention roundabout, but it may be in an abbreviated form, e.g, RB or R-bout
-   - `get_continuation_node` when the road simply changes name but no actual turn occurs (e.g., "Continue onto Station Road").
+   - `get_roundabout_path` for instructions involving roundabouts (e.g., "Roundabout third exit"). 
+        Roundabout instructions will explicitly mention roundabout. Roundabouts may be abbreviated (e.g., RB, R-bout). 
+        Similarly, "TL" or "T/L" means traffic lights, and "EOR" means "end of road".
+   - `get_continuing_road_path` when the road simply changes name but no actual turn occurs (e.g., "Continue onto Station Road").
 
 2. Extract all required arguments from the instruction and road names:
+    - G is the the network object and is the first arguement to every function. You do not need 
+    to get this information from the instruction.
    - If the instruction mentions a turn, extract the direction ("left", "right", "straight").
    - If the instruction involves a roundabout, extract the exit number as an integer (e.g., "Take the 2nd exit" → 2).
 
