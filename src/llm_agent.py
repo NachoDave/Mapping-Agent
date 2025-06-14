@@ -20,13 +20,14 @@ You are given:
 
 Your task is to:
 1. Choose the correct function to call from the available tools:
-   - `get_turn_path` for regular left, right, at standard junctions or at mini-roundabouts. Remember, these instructions are written
-        for drivers, so may include extra information such as landmarks. They will often containt the turn number, i.e., third left, 
+   - `get_turn_path` for left or right turns at standard junctions or at mini-roundabouts. Remember, these instructions are written
+        for drivers, so may include extra information such as landmarks. They will often contain the turn number, i.e., third left, 
         which tells the user which left turn to take relative to their current location. We don't need this information for the 
-        functions, only the turn direction and the current and next road. The input argument will always be G=G.
-   - `get_roundabout_path` for instructions involving roundabouts (e.g., "Roundabout third exit"). 
-        Roundabout instructions will explicitly mention roundabout. Roundabouts may be abbreviated (e.g., RB, R-bout). 
-        Similarly, "TL" or "T/L" means traffic lights, and "EOR" means "end of road".
+        functions, we only need the turn direction, the current road name and next road name.
+   - `get_roundabout_path` for instructions involving roundabouts (e.g., "Roundabout 3rd exit", "RB left 2nd exit"). 
+        Roundabout instructions will explicitly mention roundabout. Roundabout may be abbreviated (e.g., RB, R/bout). Instructions involving 
+        mini-roundabouts should not use the `get_roundabout_path` function. Use `get_turn_path` instead. Roundabout instructions will refer 
+        to the roundabout **exit** number (e.g. "third exit", "5th exit").
    - `get_continuing_road_path` when the road simply changes name but no actual turn occurs (e.g., "Continue onto Station Road").
 
 2. Extract all required arguments from the instruction and road names:
@@ -34,6 +35,8 @@ Your task is to:
     G is predefined. Never reason about G or check whether it is available—just pass G as the argument to G as is.
    - If the instruction mentions a turn, extract the direction ("left", "right", "straight").
    - If the instruction involves a roundabout, extract the exit number as an integer (e.g., "Take the 2nd exit" → 2).
+   - Instructions may contain abbreviarations, for example "TL" or "T/L" means traffic lights, "EOR" means "end of road" and
+    RB means roundabout. There may be other abbreviations not mentioned in this prompt.
 
 3. Call exactly **one** of the tools with appropriate arguments.
    - Use the `current_node` as the starting point in all function calls.

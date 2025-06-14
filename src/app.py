@@ -82,7 +82,7 @@ app.layout = dbc.Container(fluid=True, children=[
                 data=directions_data,
                 style_cell={'textAlign': 'left', 'padding': '5px'},
                 style_header={'fontWeight': 'bold'},
-                style_table={'height': '300px', 'overflowY': 'auto'}
+                style_table={'height': '200px', 'overflowY': 'auto'}
             ),
             html.Br(),
 
@@ -94,7 +94,7 @@ app.layout = dbc.Container(fluid=True, children=[
                     'backgroundColor': '#111',
                     'color': '#0f0',
                     'padding': '10px',
-                    'height': '200px',
+                    'height': '300px',
                     'overflowY': 'scroll',
                     'borderRadius': '5px',
                     'fontFamily': 'monospace',
@@ -114,8 +114,8 @@ app.layout = dbc.Container(fluid=True, children=[
             ]),
 
             dbc.ButtonGroup([
-                dbc.Button("Process Step", id="process-step-btn", color="secondary"),
-                #dbc.Button("Next", id="next-button", color="primary")
+                dbc.Button("Map Route", id="process-step-btn", color="secondary"),
+                dbc.Button("Describe Route", id="describe-route-btn", color="primary")
             ], className="mt-3")
         ])
 

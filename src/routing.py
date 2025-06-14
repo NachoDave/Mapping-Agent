@@ -357,8 +357,7 @@ def get_roundabout_path(
             f"Multiple nodes off exit node found from node: {roundabout_exit_node}"
         )
 
-    final_path = roundabout_entrance_path[:-1]
-    +roundabout_entrance_exit_path + final_node
+    final_path = roundabout_entrance_path[:-1] + roundabout_entrance_exit_path + final_node
 
     # check if there are any nodes on the current road on roundabouts
     if not potential_roundabout_current_road_nodes:
@@ -418,7 +417,7 @@ def run_tool(response, tool_dict: dict, G):
     tool = response.message.tool_calls[0]
     function_to_call = tool_dict.get(tool.function.name)
     if function_to_call:
-        print(f"Function output: {tool.function.name}, args = tool.function.arguments")
+        print(f"Function output: {tool.function.name}, args = {tool.function.arguments}")
         args = tool.function.arguments
         args.pop('G')
         
