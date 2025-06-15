@@ -65,14 +65,17 @@ def run_llm(input: dict, prompt: str, tools: list, model_name: str = "qwen3:8b")
                 f"The next road is {input['next_road']}.\n"
                 f"The instruction is: '{input['instruction']}'."
             ),
-        }
+        },
+        {"role": "system", "content": 'Do not think!'},
+        {"role": "system", "content": 'Briefly explain why you chose the tool, or chose no tool'}
     ]
 
     try:
         response = ollama.chat(
             model=model_name,
             messages=messages,
-            tools=tools,  # This is where you pass the tool definitions
+            tools=tools,
+            #think = False# This is where you pass the tool definitions
         )
         return response
     except Exception as e:

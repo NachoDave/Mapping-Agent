@@ -115,7 +115,7 @@ app.layout = dbc.Container(fluid=True, children=[
 
             dbc.ButtonGroup([
                 dbc.Button("Map Route", id="process-step-btn", color="secondary"),
-                dbc.Button("Describe Route", id="describe-route-btn", color="primary")
+                #dbc.Button("Describe Route", id="describe-route-btn", color="primary")
             ], className="mt-3")
         ])
 

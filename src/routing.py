@@ -292,6 +292,27 @@ def get_roundabout_path(
             unique_roundabouts[entry_node] = nodes
 
     # Get the road names for each exit node
+    roundabout_entrance_roads_dict = dict()
+    for ra_key in unique_roundabouts:
+        roundabout_entrance_roads = dict()
+        ra = unique_roundabouts[ra_key]
+        for rb_nd in ra:
+            for rb_nd_neighbour in G.predecessors(rb_nd):
+                if rb_nd_neighbour not in ra:
+                    rd_nb_edges = G.get_edge_data(rb_nd_neighbour, rb_nd)
+                    for _, data in rd_nb_edges.items():
+                        roundabout_entrance_roads[rb_nd] = data.get("name")
+
+            roundabout_entrance_roads_dict[ra_key] = roundabout_entrance_roads
+
+    # Remove roundabouts that do not have any entrances from current road
+    roundabout_entrance_roads_dict = {
+        k: v
+        for k, v in roundabout_entrance_roads_dict.items()
+        if next_road_name in v.values()
+    }
+
+    # Get the road names for each exit node
     roundabout_exit_roads_dict = dict()
     for ra_key in unique_roundabouts:
         roundabout_exit_roads = dict()
@@ -322,7 +343,7 @@ def get_roundabout_path(
     # Get the most likely entrance node using shortest distance (this will be the path to the roundabout)
     roundabout_entrance_curr_node_nodes = {
         k: ox.shortest_path(G, current_node, k, weight="length")
-        for k, v in next(iter(roundabout_exit_roads_dict.values())).items()
+        for k, v in next(iter(roundabout_entrance_roads_dict.values())).items()
         if v in current_road_name
     }
 
@@ -331,7 +352,7 @@ def get_roundabout_path(
     )
 
     # Get the exit node from the exit number
-    roundabout_nodes = list(next(iter(roundabout_exit_roads_dict.values())).keys())
+    roundabout_nodes = next(iter(unique_roundabouts.values()))
 
     # Use deque to rotate the list so that entrance_node is first
     dq = deque(roundabout_nodes)
@@ -339,7 +360,10 @@ def get_roundabout_path(
     while dq[0] != roundabout_entrance_node:
         dq.rotate(-1)  # Move elements left until entrance_node is at front
 
-    roundabout_exit_node = dq[exit]
+    ordered_exit_roads = [k for k in dq if k in roundabout_exit_roads]
+    ordered_exit_roads = [x for x in ordered_exit_roads if x != roundabout_entrance_node]
+
+    roundabout_exit_node = ordered_exit_roads[exit - 1]
 
     # Get route between roundabout entrance and exit nodes
     roundabout_entrance_exit_path = ox.shortest_path(
@@ -438,18 +462,22 @@ if __name__ == "__main__":
 
     G = ox.graph_from_point((51.3829463, -0.2933327), dist=5000, network_type='drive')
     # print(get_nodes_on_road(G_tolworth, 'Ewell Road'))
+    
+    
+    #print(get_roundabout_path(G, 'Kingsdowne Road', 'Upper Brighton Road', 1736768194, 3))
+    #print(get_roundabout_path(G, 'Balaclava Road', 'Balaclava Road', 1955602497, 1))
+    print(get_roundabout_path(G, 'Balaclava Road', 'Chadwick Place', 1955602497, 2))
+    # node1_2_input = {
+    #     "current_node": "23780711",
+    #     "current_road": "Douglas Road",
+    #     "next_road": "Ewell Road",
+    #     "instruction": "Take the second left",
+    # }
 
-    node1_2_input = {
-        "current_node": "23780711",
-        "current_road": "Douglas Road",
-        "next_road": "Ewell Road",
-        "instruction": "Take the second left",
-    }
+    # llm_response = run_llm(
+    #     input=node1_2_input,
+    #     prompt=INITIAL_PROMPT,
+    #     tools=[get_continuing_road_path, get_turn_path, get_roundabout_path],
+    # )
 
-    llm_response = run_llm(
-        input=node1_2_input,
-        prompt=INITIAL_PROMPT,
-        tools=[get_continuing_road_path, get_turn_path, get_roundabout_path],
-    )
-
-    func_out = run_tool(llm_response, tool_dict, G)
+    # func_out = run_tool(llm_response, tool_dict, G)
