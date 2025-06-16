@@ -52,7 +52,7 @@ def get_continuing_road_path(
             edge_data = G.get_edge_data(node, succ)
             for _, data in edge_data.items():
                 road_name = data.get("name")
-                if road_name == current_road_name or road_name == next_road_name:
+                if (current_road_name in road_name) or (next_road_name in road_name):
                     next_node = succ
                     break
             if next_node:
@@ -463,10 +463,13 @@ if __name__ == "__main__":
     G = ox.graph_from_point((51.3829463, -0.2933327), dist=5000, network_type='drive')
     # print(get_nodes_on_road(G_tolworth, 'Ewell Road'))
     
+    print(get_continuing_road_path(
+    G, current_road_name = 'Balaclava Road', next_road_name = "Saint Mary's Road", current_node = 1397397612
+))
     
     #print(get_roundabout_path(G, 'Kingsdowne Road', 'Upper Brighton Road', 1736768194, 3))
     #print(get_roundabout_path(G, 'Balaclava Road', 'Balaclava Road', 1955602497, 1))
-    print(get_roundabout_path(G, 'Balaclava Road', 'Chadwick Place', 1955602497, 2))
+    #print(get_roundabout_path(G, 'Balaclava Road', 'Chadwick Place', 1955602497, 2))
     # node1_2_input = {
     #     "current_node": "23780711",
     #     "current_road": "Douglas Road",

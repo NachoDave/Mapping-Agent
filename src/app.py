@@ -109,6 +109,7 @@ app.layout = dbc.Container(fluid=True, children=[
                 id="initial-node-input",
                 type="number",
                 placeholder="Enter start node (e.g. 12345)",
+                value=23780711, 
                 style={"width": "100%", "marginBottom": "10px"}
             )
             ]),
