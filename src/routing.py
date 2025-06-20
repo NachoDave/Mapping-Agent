@@ -396,11 +396,33 @@ def get_roundabout_path(
 def get_markers_and_polylines(G, nodes, step, edge_color = 'red'):
     ## Get markers
     node_dict = {node: G.nodes[node] for node in nodes}
-    markers = [
-    dl.Marker(position=(node_dict[dx]['y'], node_dict[dx]['x']), 
-              children=dl.Tooltip(f'Step: {step}, ID: {dx}, x: {node_dict[dx]['x']}, y: {node_dict[dx]['y']}'))
-    for dx in node_dict.keys()
-    ]
+    
+    markers = []
+
+    for i, node in enumerate(node_dict.keys()):
+        lat, lon = node_dict[node]["y"], node_dict[node]["x"]
+
+        # Only add tooltip to the first node
+        if i == 0:
+            tooltip = dl.Tooltip(
+                f"Step: {step}",
+                direction="left",
+                offset=[-20, 0],
+                permanent=True
+            )
+            marker = dl.Marker(position=(lat, lon), children=[tooltip])
+        else:
+            marker = dl.Marker(position=(lat, lon))
+
+        markers.append(marker)
+    
+    # markers = [
+    # dl.Marker(position=(node_dict[dx]['y'], node_dict[dx]['x']),
+    #           children=[#dl.Tooltip(f'Step: {step}, ID: {dx}, x: {node_dict[dx]['x']}, y: {node_dict[dx]['y']}'),
+    #                     dl.Tooltip(f'Step: {step}', direction="left", offset=[-20, 0], permanent=True)
+    #                     ])
+    # for dx in node_dict.keys()
+    # ]
     
     ## Get polylines
     edges = [G.get_edge_data(nodes[u], nodes[u + 1])[0] for u in range(len(nodes) - 1)]

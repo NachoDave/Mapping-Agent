@@ -20,7 +20,7 @@ You are given:
 
 Your task is to:
 1. Choose the correct function to call from the available tools:
-   - `get_turn_path` for left or right turns at standard junctions or at mini-roundabouts. Remember, these instructions are written
+   - `get_turn_path` for left or right turns at standard junctions, end of roads, at traffic lights or at mini-roundabouts. Remember, these instructions are written
         for drivers, so may include extra information such as landmarks. They will often contain the turn number, i.e., third left, 
         which tells the user which left turn to take relative to their current location. We don't need this information for the 
         functions, we only need the turn direction, the current road name and next road name.
@@ -58,6 +58,7 @@ def run_llm(input: dict, prompt: str, tools: list, model_name: str = "qwen3:8b")
 
     messages = [
         {"role": "system", "content": prompt},
+        {"role": "user", "content": 'Explain why you chose the tool, or chose no tool. Do not think'},
         {
             "role": "user",
             "content": (
@@ -66,8 +67,9 @@ def run_llm(input: dict, prompt: str, tools: list, model_name: str = "qwen3:8b")
                 f"The instruction is: '{input['instruction']}'."
             ),
         },
-        {"role": "system", "content": 'Do not think!'},
-        {"role": "system", "content": 'Briefly explain why you chose the tool, or chose no tool'}
+        
+        #{"role": "system", "content": 'Do not think!'},
+        
     ]
 
     try:

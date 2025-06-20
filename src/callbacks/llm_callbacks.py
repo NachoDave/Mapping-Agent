@@ -72,7 +72,7 @@ def process_step(n_clicks, table_data, start_node):
                 nodes = run_tool(llm_response, tool_dict, G)
             except ValueError as e:
                 cli_msg = cli_msg + f"LLM Message: {llm_response.message.content} \n\n"
-                cli_msg - cli_msg + e
+                cli_msg = cli_msg + e
                 print(f"Caught value error {e}")
                 return cli_msg, [], [], []
                 
